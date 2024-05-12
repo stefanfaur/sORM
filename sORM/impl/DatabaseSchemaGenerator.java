@@ -5,9 +5,20 @@ import sORM.impl.annotations.Entity;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseSchemaGenerator {
+
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return fields;
+    }
+
 
     private String defaultSqlType(Class<?> javaType) {
         if (javaType == int.class || javaType == Integer.class) {
@@ -29,12 +40,13 @@ public class DatabaseSchemaGenerator {
         for (Class<?> clazz : classes) {
             if (clazz.isAnnotationPresent(Entity.class)) {
                 Entity entity = clazz.getAnnotation(Entity.class);
-                StringBuilder createTable = new StringBuilder("CREATE TABLE ");
+                StringBuilder createTable = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
                 createTable.append(entity.tableName()).append(" (");
 
                 List<String> columns = new ArrayList<>();
-                Field[] fields = clazz.getDeclaredFields();
+                List<Field> fields = getAllFields(clazz); // Get all fields, including inherited ones
                 for (Field field : fields) {
+                    field.setAccessible(true);  // Make private fields accessible
                     String columnName = field.getName();
                     String columnType = defaultSqlType(field.getType());
                     boolean primaryKey = false;
@@ -59,5 +71,6 @@ public class DatabaseSchemaGenerator {
         }
         return schemaCommands;
     }
+
 }
 

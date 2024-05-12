@@ -1,9 +1,7 @@
 package sORM.impl;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.lang.reflect.Field;
+import java.sql.*;
 import java.util.List;
 
 
@@ -32,6 +30,9 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
+
+
+    // Executes SQL commands that do not return data
     @Override
     public void executeSQL(String sql) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
@@ -39,6 +40,54 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
+    // Executes queries that modify data and returns the number of affected rows
+    @Override
+    public int executeUpdate(String sql) throws SQLException {
+        try (Statement stmt = connection.createStatement()) {
+            int count = stmt.executeUpdate(sql);
+            System.out.println("Executed update: " + sql + " | Rows affected: " + count);
+            return count;
+        }
+    }
+
+    // Executes queries that return data and handles the result set
+    public <T> T executeQuery(String sql, Class<T> entityClass) throws SQLException {
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println("Executed query: " + sql);
+
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int columnCount = rsmd.getColumnCount();
+            T entity = entityClass.getDeclaredConstructor().newInstance();
+
+            if (rs.next()) {
+                Class<?> currentClass = entityClass;
+                while (currentClass != null) {
+                    for (Field field : currentClass.getDeclaredFields()) {
+                        field.setAccessible(true);  // Make field accessible regardless of its visibility
+                        String fieldName = field.getName().toLowerCase();
+                        for (int i = 1; i <= columnCount; i++) {
+                            String columnName = rsmd.getColumnName(i).toLowerCase();
+                            if (fieldName.equals(columnName)) {
+                                Object value = rs.getObject(i);
+                                field.set(entity, value);
+                                break;
+                            }
+                        }
+                    }
+                    currentClass = currentClass.getSuperclass();  // Move to the superclass
+                }
+            }
+            return entity;
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Reflection operation failed", e);
+        } catch (SQLException e) {
+            throw new SQLException("Failed to execute query", e);
+        }
+    }
+
+
+    // Executes a batch of SQL commands that do not return data
     public void executeBatch(List<String> sqlCommands) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             for (String sql : sqlCommands) {
