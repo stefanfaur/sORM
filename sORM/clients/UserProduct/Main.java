@@ -1,4 +1,4 @@
-package sORM.client;
+package sORM.clients.UserProduct;
 
 import sORM.impl.*;
 
@@ -6,6 +6,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class Main {
+
+    private static void printSplittingLine() {
+        System.out.println("--------------------------------------------------");
+    }
+
     public static void main(String[] args) {
         // setup the connection
         String connectionString = "jdbc:sqlite:sorm.db"; // local db file name
@@ -29,52 +34,51 @@ public class Main {
             adapter.disconnect();
         }
 
+        printSplittingLine();
 
-        // test CRUD operations
+        // reconnect to the database
         adapter.connect(connectionString);
 
+        // create an entity manager
         EntityManager entityManager = new EntityManagerImpl(adapter);
-        // Create a new user
+
+        // create a new user
         User newUser = new User("John Doe", "10/12/1990");
         newUser.setProduct(new Product("phone", "android", 1999.99));
-        entityManager.save(newUser);  // Save the new user
-
-        // Update the user
+        entityManager.save(newUser);
         newUser.setName("John Smith");
-        entityManager.update(newUser);  // Update the user
-
-
-        // Find the user
+        entityManager.update(newUser); // update the user
+        // find the user by name
         User foundUser = entityManager.find(User.class, "name", "John Smith");
         if (foundUser != null) {
             System.out.println("Found User: " + foundUser.getName());
         } else {
             System.out.println("User not found.");
         }
+        printSplittingLine();
 
+
+        // create a new product
         Product laptop = new Product("Laptop", "good looking", 999.99);
-        entityManager.save(laptop);  // Save the new product
+        entityManager.save(laptop);
         laptop.setPrice(899.99);
-        entityManager.update(laptop);  // Update the product
+        entityManager.update(laptop);
+        // find the product by name
         Product temp = entityManager.find(laptop.getClass(), "name", "Laptop");
         if (temp != null) {
             System.out.println("Found Product: " + temp.getName() + " Price: " + temp.getPrice() + " Description: " + temp.getDescription() + " ID: " + temp.getId());
         } else {
             System.out.println("Product not found.");
         }
+        printSplittingLine();
 
-
-        // Delete the user
-        entityManager.delete(newUser);
-
-        // Create a new poweruser, which inherits from user
+        // create a new Poweruser, which is a subclass of User
         PowerUser powerUser = new PowerUser("Jane Doe", "10/12/1990", "admin");
-        entityManager.save(powerUser);  // Save the new power user
+        entityManager.save(powerUser);
         powerUser.setPowerLevel("superadmin");
-        entityManager.update(powerUser);  // Update the power user
+        entityManager.update(powerUser);
+        printSplittingLine();
 
-
-        // Close the database connection
         adapter.disconnect();
 
     }

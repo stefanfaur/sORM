@@ -17,5 +17,6 @@ public interface DatabaseAdapter {
     // Executes queries that return data and handles the result set
     public <T> T executeQuery(String sql, Class<T> entityClass) throws SQLException;
 
+    // Executes a batch of SQL commands that do not return data
     public void executeBatch(List<String> sqlCommands) throws SQLException;
 }

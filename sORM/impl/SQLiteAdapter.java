@@ -32,7 +32,6 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
-    // Executes SQL commands that do not return data
     @Override
     public void executeSQL(String sql) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
@@ -40,7 +39,6 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
-    // Executes queries that modify data and returns the number of affected rows
     @Override
     public int executeUpdate(String sql) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
@@ -50,7 +48,6 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
-    // Executes queries that return data and handles the result set
     public <T> T executeQuery(String sql, Class<T> entityClass) throws SQLException {
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -81,6 +78,7 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
+    // field value parsing and setting
     private void setField(Field field, Object entity, Object value) throws IllegalAccessException {
         Class<?> fieldType = field.getType();
         if (fieldType.isAnnotationPresent(Entity.class) && value != null) {
@@ -100,6 +98,7 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
+    // Find and return the entity with the specified ID
     private <T> T findReferencedEntity(Class<T> entityType, int id) {
         Entity entityInfo = entityType.getAnnotation(Entity.class);
         if (entityInfo == null) {
@@ -131,6 +130,7 @@ public class SQLiteAdapter implements DatabaseAdapter {
         return null;
     }
 
+    // find field by name ignoring case, normalizes field names
     private Field findFieldIgnoreCase(Class<?> clazz, String columnName) {
         for (Field field : getAllFields(clazz)) {
             if (field.getName().equalsIgnoreCase(columnName)) {
@@ -140,6 +140,7 @@ public class SQLiteAdapter implements DatabaseAdapter {
         return null;
     }
 
+    // Get all fields of a class, including inherited fields
     private List<Field> getAllFields(Class<?> type) {
         List<Field> fields = new ArrayList<>();
         while (type != null) {
@@ -149,7 +150,6 @@ public class SQLiteAdapter implements DatabaseAdapter {
         return fields;
     }
 
-    // Executes a batch of SQL commands that do not return data
     public void executeBatch(List<String> sqlCommands) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             for (String sql : sqlCommands) {

@@ -1,4 +1,4 @@
-package sORM.client;
+package sORM.clients.UserProduct;
 
 import sORM.impl.annotations.Column;
 import sORM.impl.annotations.Entity;

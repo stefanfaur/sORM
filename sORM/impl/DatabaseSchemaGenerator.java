@@ -4,8 +4,6 @@ import sORM.impl.annotations.Column;
 import sORM.impl.annotations.Entity;
 
 import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

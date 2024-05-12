@@ -28,7 +28,6 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public <T> void save(T entity) {
-        System.out.println("\n");
 
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             System.out.println("No Entity annotation present.");
@@ -105,7 +104,6 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public <T> void delete(T entity) {
-        System.out.println("\n");
 
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             return;
@@ -152,7 +150,6 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public <T> T find(Class<T> entityClass, String fieldName, Object fieldValue) {
-        System.out.println("\n");
 
         if (!entityClass.isAnnotationPresent(Entity.class)) {
             System.out.println("Entity annotation missing for class: " + entityClass.getSimpleName());
@@ -196,7 +193,6 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public <T> void update(T entity) {
-        System.out.println("\n");
 
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             System.out.println("Entity annotation missing.");
@@ -281,6 +277,10 @@ public class EntityManagerImpl implements EntityManager {
             e.printStackTrace();
         }
     }
+
+
+
+
 
     private Field findPrimaryKeyField(Class<?> clazz) {
         // Search for the primary key field annotated with @Column(primaryKey = true)

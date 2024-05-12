@@ -4,18 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05b72105-d001-474e-803c-19a1b07bc254" name="Changes" comment="Added database schema creating and basic CRUD.">
+    <list default="true" id="05b72105-d001-474e-803c-19a1b07bc254" name="Changes" comment="Added association relationships/FKs/nested entities.">
+      <change afterPath="$PROJECT_DIR$/sORM/clients/TruckShipments/Main.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sORM/clients/TruckShipments/Shipment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sORM/clients/TruckShipments/Truck.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/client/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/client/PowerUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/PowerUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/client/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/client/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/clients/UserProduct/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/PowerUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/clients/UserProduct/PowerUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/clients/UserProduct/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/clients/UserProduct/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/DatabaseAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/DatabaseAdapter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/DatabaseSchemaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/DatabaseSchemaGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/impl/EntityManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/EntityManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/EntityManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/EntityManagerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/SQLiteAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/SQLiteAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sorm.db" beforeDir="false" afterPath="$PROJECT_DIR$/sorm.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sorm.db" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,25 +53,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;openjdk-21&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "jdk.selected.JAVA_MODULE": "openjdk-21",
+    "last_opened_file_path": "/Users/faur/IdeaProjects/sORM/sORM/clients/TruckShipments",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="sORM.client" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sORM/clients/TruckShipments" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="sORM.clients.UserProduct" />
       <recent name="sORM.src.main.java.org.passc" />
       <recent name="sORM" />
     </key>
@@ -83,7 +90,7 @@
       <option name="presentableId" value="Default" />
       <updated>1715508668956</updated>
       <workItem from="1715508670065" duration="11184000" />
-      <workItem from="1715531043883" duration="5426000" />
+      <workItem from="1715531043883" duration="7301000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit.">
       <created>1715514748302</created>
@@ -99,7 +106,14 @@
       <option name="project" value="LOCAL" />
       <updated>1715531829320</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added association relationships/FKs/nested entities.">
+      <created>1715536960928</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1715536960928</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -120,6 +134,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Initial commit." />
     <MESSAGE value="Added database schema creating and basic CRUD." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added database schema creating and basic CRUD." />
+    <MESSAGE value="Added association relationships/FKs/nested entities." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added association relationships/FKs/nested entities." />
   </component>
 </project>
