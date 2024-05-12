@@ -4,6 +4,7 @@ import sORM.impl.annotations.Column;
 import sORM.impl.annotations.Entity;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ public class EntityManagerImpl implements EntityManager {
 
     @Override
     public <T> void save(T entity) {
+        System.out.println("\n");
+
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             System.out.println("No Entity annotation present.");
             return;
@@ -36,45 +39,74 @@ public class EntityManagerImpl implements EntityManager {
         StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(tableAnnotation.tableName()).append(" (");
 
-        StringBuilder values = new StringBuilder("VALUES (");
         List<Field> fields = getAllFields(entity.getClass());
-        boolean first = true;
+        List<String> columnNames = new ArrayList<>();
+        List<String> valueStrings = new ArrayList<>();
+
+        // Process each field to construct SQL query
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
-                if (!first) {
-                    sql.append(", ");
-                    values.append(", ");
-                }
-                first = false;
+                field.setAccessible(true);
                 Column column = field.getAnnotation(Column.class);
                 String columnName = column.name().isEmpty() ? field.getName() : column.name();
 
-                sql.append(columnName);
-                field.setAccessible(true);
                 try {
                     Object fieldValue = field.get(entity);
-                    String valueString = fieldValue == null ? "NULL" : "'" + fieldValue.toString().replace("'", "''") + "'";
-                    values.append(valueString);
-                } catch (IllegalAccessException e) {
-                    System.out.println("Illegal access to field: " + field.getName());
+                    if (field.getType().isAnnotationPresent(Entity.class) && fieldValue != null) {
+                        // Recursive save if the field is another entity (for nested objects)
+                        save(fieldValue); // Ensure nested object is saved first
+                        Field idField = fieldValue.getClass().getDeclaredField("id"); // Assuming 'id' is the PK field
+                        idField.setAccessible(true);
+                        fieldValue = idField.get(fieldValue); // Use the nested entity's id as the FK
+                    }
+
+                    // Convert fieldValue to a string suitable for SQL statement
+                    String valueString = convertValueForSQL(fieldValue);
+                    if (valueString != null) {
+                        columnNames.add(columnName);
+                        valueStrings.add(valueString);
+                    }
+                } catch (IllegalAccessException | NoSuchFieldException e) {
+                    System.out.println("Error accessing field: " + field.getName());
                     e.printStackTrace();
                 }
             }
         }
-        sql.append(") ").append(values).append(");");
 
-        try {
-            System.out.println("Executing save: " + sql.toString());
-            adapter.executeSQL(sql.toString());
-        } catch (SQLException e) {
-            System.out.println("SQL Exception on save");
-            e.printStackTrace();
+        if (!columnNames.isEmpty()) {
+            sql.append(String.join(", ", columnNames)).append(") VALUES (");
+            sql.append(String.join(", ", valueStrings)).append(");");
+
+            // Execute the constructed SQL query
+            try {
+                System.out.println("Executing save: " + sql.toString());
+                adapter.executeSQL(sql.toString());
+            } catch (SQLException e) {
+                System.out.println("SQL Exception on save");
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No data to insert.");
         }
     }
 
+    private String convertValueForSQL(Object value) {
+        if (value == null) {
+            return "NULL";
+        } else if (value instanceof String) {
+            return "'" + value.toString().replace("'", "''") + "'"; // Handle SQL injection
+        } else if (value instanceof Number) {
+            return value.toString(); // Numbers are inserted directly
+        } else if (value instanceof Boolean) {
+            return ((Boolean) value) ? "1" : "0"; // Convert Boolean to integer for SQL
+        }
+        return null; // Return null if the type is not handled
+    }
 
     @Override
     public <T> void delete(T entity) {
+        System.out.println("\n");
+
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             return;
         }
@@ -119,8 +151,11 @@ public class EntityManagerImpl implements EntityManager {
 
 
     @Override
-    public <T> T find(Class<T> entityClass, Object primaryKey) {
+    public <T> T find(Class<T> entityClass, String fieldName, Object fieldValue) {
+        System.out.println("\n");
+
         if (!entityClass.isAnnotationPresent(Entity.class)) {
+            System.out.println("Entity annotation missing for class: " + entityClass.getSimpleName());
             return null;
         }
 
@@ -129,38 +164,40 @@ public class EntityManagerImpl implements EntityManager {
         sql.append(tableAnnotation.tableName());
         sql.append(" WHERE ");
 
-        Field[] fields = entityClass.getDeclaredFields();
-        boolean primaryKeyFound = false;
-        for (Field field : fields) {
+        Field field;
+        try {
+            field = entityClass.getDeclaredField(fieldName);
             if (field.isAnnotationPresent(Column.class)) {
                 Column column = field.getAnnotation(Column.class);
-                if (column.primaryKey()) {
-                    String columnName = column.name().isEmpty() ? field.getName() : column.name();
-                    sql.append(columnName).append(" = '").append(primaryKey.toString().replace("'", "''")).append("';");
-                    primaryKeyFound = true;
-                    break;
-                }
-            }
-        }
-
-        if (primaryKeyFound) {
-            try {
-                System.out.println("Executing find: " + sql.toString());
-                return adapter.executeQuery(sql.toString(), entityClass);
-            } catch (SQLException e) {
-                e.printStackTrace();
+                String columnName = column.name().isEmpty() ? field.getName() : column.name();
+                String valueString = fieldValue.toString().replace("'", "''");  // Handle potential SQL injection
+                sql.append(columnName).append(" = '").append(valueString).append("'");
+            } else {
+                System.out.println("Field '" + fieldName + "' in class '" + entityClass.getSimpleName() + "' is not annotated as a column.");
                 return null;
             }
-        } else {
-            System.out.println("Primary key not found for class: " + entityClass.getSimpleName());
+        } catch (NoSuchFieldException e) {
+            System.out.println("Field '" + fieldName + "' not found in class '" + entityClass.getSimpleName() + "'");
+            return null;
+        }
+
+        try {
+            System.out.println("Executing find: " + sql.toString());
+            return adapter.executeQuery(sql.toString(), entityClass);
+        } catch (SQLException e) {
+            System.out.println("SQL Exception on find");
+            e.printStackTrace();
             return null;
         }
     }
 
 
 
+
     @Override
     public <T> void update(T entity) {
+        System.out.println("\n");
+
         if (!entity.getClass().isAnnotationPresent(Entity.class)) {
             System.out.println("Entity annotation missing.");
             return;
@@ -181,15 +218,23 @@ public class EntityManagerImpl implements EntityManager {
                 field.setAccessible(true);
                 try {
                     Object fieldValue = field.get(entity);
+                    if (field.getType().isAnnotationPresent(Entity.class) && fieldValue != null) {
+                        // Assuming the nested entity also needs to be updated
+                        saveOrUpdate(fieldValue); // Save or update the nested entity
+                        Field idField = fieldValue.getClass().getDeclaredField("id"); // Assuming 'id' is the primary key
+                        idField.setAccessible(true);
+                        fieldValue = idField.get(fieldValue); // Use the nested entity's id as the FK
+                    }
+
                     if (column.primaryKey()) {
                         primaryKeyField = column.name().isEmpty() ? field.getName() : column.name();
                         primaryKeyValue = fieldValue;
-                    } else {
+                    } else if (fieldValue != null) {
                         String columnName = column.name().isEmpty() ? field.getName() : column.name();
-                        String valueString = fieldValue == null ? "NULL" : "'" + fieldValue.toString().replace("'", "''") + "'";
+                        String valueString = "'" + fieldValue.toString().replace("'", "''") + "'";
                         updates.add(columnName + " = " + valueString);
                     }
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException | NoSuchFieldException e) {
                     System.out.println("Illegal access to field: " + field.getName());
                     e.printStackTrace();
                 }
@@ -212,5 +257,41 @@ public class EntityManagerImpl implements EntityManager {
         }
     }
 
+    private <T> void saveOrUpdate(T entity) {
+        try {
+            if (entity.getClass().isAnnotationPresent(Entity.class)) {
+                Field idField = findPrimaryKeyField(entity.getClass());
+                if (idField != null) {
+                    idField.setAccessible(true);
+                    Object idValue = idField.get(entity);
+                    // Assuming ID is of type Integer and a non-null and non-zero value indicates an existing entity
+                    if (idValue != null && ((Integer) idValue) > 0) {
+                        update(entity);
+                    } else {
+                        save(entity);
+                    }
+                } else {
+                    System.out.println("No primary key field found for class: " + entity.getClass().getSimpleName());
+                }
+            } else {
+                System.out.println("No Entity annotation present on class: " + entity.getClass().getSimpleName());
+            }
+        } catch (IllegalAccessException e) {
+            System.out.println("Access error on primary key field: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private Field findPrimaryKeyField(Class<?> clazz) {
+        // Search for the primary key field annotated with @Column(primaryKey = true)
+        List<Field> fields = getAllFields(clazz);
+        for (Field field : fields) {
+            Column column = field.getAnnotation(Column.class);
+            if (column != null && column.primaryKey()) {
+                return field;
+            }
+        }
+        return null;
+    }
 
 }

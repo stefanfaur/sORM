@@ -4,12 +4,16 @@ import sORM.impl.annotations.Column;
 import sORM.impl.annotations.Entity;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseSchemaGenerator {
 
+
+    private DatabaseAdapter adapter;
 
     private List<Field> getAllFields(Class<?> type) {
         List<Field> fields = new ArrayList<>();
@@ -31,9 +35,12 @@ public class DatabaseSchemaGenerator {
             return "BOOLEAN";
         } else if (javaType == String.class) {
             return "VARCHAR(255)";
+        } else if (javaType.isAnnotationPresent(Entity.class)) {
+            return null; // meaning we need to handle this as a foreign key relationship
         }
         throw new IllegalArgumentException("Unsupported Java type: " + javaType.getSimpleName());
     }
+
 
     public List<String> generateSchema(Class<?>... classes) {
         List<String> schemaCommands = new ArrayList<>();
@@ -44,33 +51,40 @@ public class DatabaseSchemaGenerator {
                 createTable.append(entity.tableName()).append(" (");
 
                 List<String> columns = new ArrayList<>();
-                List<Field> fields = getAllFields(clazz); // Get all fields, including inherited ones
+                List<Field> fields = getAllFields(clazz);
+                List<String> foreignKeys = new ArrayList<>();
                 for (Field field : fields) {
-                    field.setAccessible(true);  // Make private fields accessible
-                    String columnName = field.getName();
-                    String columnType = defaultSqlType(field.getType());
-                    boolean primaryKey = false;
+                    field.setAccessible(true);
+                    Column column = field.getAnnotation(Column.class);
+                    if (column != null) {
+                        String columnName = column.name().isEmpty() ? field.getName() : column.name();
+                        String columnType = defaultSqlType(field.getType());
+                        if (columnType == null) { // This is an entity relationship
+                            Class<?> fieldType = field.getType();
+                            Entity referencedEntity = fieldType.getAnnotation(Entity.class);
+                            columnType = "INTEGER"; // id field of the referenced entity
+                            foreignKeys.add("FOREIGN KEY (" + columnName + ") REFERENCES " + referencedEntity.tableName() + " (id)");
+                        }
 
-                    if (field.isAnnotationPresent(Column.class)) {
-                        Column column = field.getAnnotation(Column.class);
-                        columnName = column.name().isEmpty() ? columnName : column.name();
-                        columnType = column.type().isEmpty() ? columnType : column.type();
-                        primaryKey = column.primaryKey();
+                        String columnDefinition = columnName + " " + columnType;
+                        if (column.primaryKey()) {
+                            columnDefinition += " PRIMARY KEY";
+                        }
+                        columns.add(columnDefinition);
                     }
-
-                    String columnDefinition = columnName + " " + columnType;
-                    if (primaryKey) {
-                        columnDefinition += " PRIMARY KEY";
-                    }
-                    columns.add(columnDefinition);
                 }
                 createTable.append(String.join(", ", columns));
+                if (!foreignKeys.isEmpty()) {
+                    createTable.append(", ");
+                    createTable.append(String.join(", ", foreignKeys));
+                }
                 createTable.append(");");
                 schemaCommands.add(createTable.toString());
             }
         }
         return schemaCommands;
     }
+
 
 }
 

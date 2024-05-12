@@ -13,11 +13,13 @@ public class User {
     public User() {
     } // MUST have a no-arg constructor
 
-    public User(int id, String name, String registrationDate) {
-        this.id = id;
+    public User(String name, String registrationDate) {
+        this.id = idCounter++;
         this.name = name;
         this.registrationDate = registrationDate;
     }
+
+    private static int idCounter = 1;
 
     @Column(primaryKey = true) // Automatically infers type and name, but explicitly set as primary key
     private int id;
@@ -27,6 +29,13 @@ public class User {
 
     @Column(name = "registration_date", type = "DATE")
     private String registrationDate; // Overrides the type and name
+
+    @Column
+    private Product product;
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 
     public String getName() {
         return name;

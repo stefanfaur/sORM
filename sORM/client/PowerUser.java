@@ -11,8 +11,8 @@ public class PowerUser extends User{
     public PowerUser() {
     }
 
-    public PowerUser(int id, String name, String registrationDate, String powerLevel) {
-        super(id, name, registrationDate);
+    public PowerUser(String name, String registrationDate, String powerLevel) {
+        super(name, registrationDate);
         this.powerLevel = powerLevel;
     }
 

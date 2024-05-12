@@ -35,26 +35,28 @@ public class Main {
 
         EntityManager entityManager = new EntityManagerImpl(adapter);
         // Create a new user
-        User newUser = new User(1, "John Doe", "10/12/1990");
+        User newUser = new User("John Doe", "10/12/1990");
+        newUser.setProduct(new Product("phone", "android", 1999.99));
         entityManager.save(newUser);  // Save the new user
 
         // Update the user
         newUser.setName("John Smith");
         entityManager.update(newUser);  // Update the user
 
+
         // Find the user
-        User foundUser = entityManager.find(User.class, 1);
+        User foundUser = entityManager.find(User.class, "name", "John Smith");
         if (foundUser != null) {
             System.out.println("Found User: " + foundUser.getName());
         } else {
             System.out.println("User not found.");
         }
 
-        Product laptop = new Product(1, "Laptop", "good looking", 999.99);
+        Product laptop = new Product("Laptop", "good looking", 999.99);
         entityManager.save(laptop);  // Save the new product
         laptop.setPrice(899.99);
         entityManager.update(laptop);  // Update the product
-        Product temp = entityManager.find(laptop.getClass(), laptop.getId());
+        Product temp = entityManager.find(laptop.getClass(), "name", "Laptop");
         if (temp != null) {
             System.out.println("Found Product: " + temp.getName() + " Price: " + temp.getPrice() + " Description: " + temp.getDescription() + " ID: " + temp.getId());
         } else {
@@ -66,7 +68,7 @@ public class Main {
         entityManager.delete(newUser);
 
         // Create a new poweruser, which inherits from user
-        PowerUser powerUser = new PowerUser(2, "Jane Doe", "10/12/1990", "admin");
+        PowerUser powerUser = new PowerUser("Jane Doe", "10/12/1990", "admin");
         entityManager.save(powerUser);  // Save the new power user
         powerUser.setPowerLevel("superadmin");
         entityManager.update(powerUser);  // Update the power user

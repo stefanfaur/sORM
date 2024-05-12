@@ -1,9 +1,11 @@
 package sORM.impl;
 
+import sORM.impl.annotations.Entity;
+
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
-
 
 public class SQLiteAdapter implements DatabaseAdapter {
     private Connection connection;
@@ -29,8 +31,6 @@ public class SQLiteAdapter implements DatabaseAdapter {
             }
         }
     }
-
-
 
     // Executes SQL commands that do not return data
     @Override
@@ -61,21 +61,16 @@ public class SQLiteAdapter implements DatabaseAdapter {
             T entity = entityClass.getDeclaredConstructor().newInstance();
 
             if (rs.next()) {
-                Class<?> currentClass = entityClass;
-                while (currentClass != null) {
-                    for (Field field : currentClass.getDeclaredFields()) {
-                        field.setAccessible(true);  // Make field accessible regardless of its visibility
-                        String fieldName = field.getName().toLowerCase();
-                        for (int i = 1; i <= columnCount; i++) {
-                            String columnName = rsmd.getColumnName(i).toLowerCase();
-                            if (fieldName.equals(columnName)) {
-                                Object value = rs.getObject(i);
-                                field.set(entity, value);
-                                break;
-                            }
+                for (Field field : getAllFields(entityClass)) {
+                    field.setAccessible(true);  // Make field accessible regardless of its visibility
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = rsmd.getColumnName(i).toLowerCase();
+                        if (field.getName().equalsIgnoreCase(columnName)) {
+                            Object value = rs.getObject(i);
+                            setField(field, entity, value);
+                            break;
                         }
                     }
-                    currentClass = currentClass.getSuperclass();  // Move to the superclass
                 }
             }
             return entity;
@@ -86,6 +81,73 @@ public class SQLiteAdapter implements DatabaseAdapter {
         }
     }
 
+    private void setField(Field field, Object entity, Object value) throws IllegalAccessException {
+        Class<?> fieldType = field.getType();
+        if (fieldType.isAnnotationPresent(Entity.class) && value != null) {
+            field.set(entity, findReferencedEntity(fieldType, Integer.parseInt(value.toString())));
+        } else if (value != null) {
+            if (fieldType == int.class || fieldType == Integer.class) {
+                field.set(entity, Integer.parseInt(value.toString()));
+            } else if (fieldType == double.class || fieldType == Double.class) {
+                field.set(entity, Double.parseDouble(value.toString()));
+            } else if (fieldType == boolean.class || fieldType == Boolean.class) {
+                field.set(entity, Boolean.parseBoolean(value.toString()));
+            } else if (fieldType == String.class) {
+                field.set(entity, value.toString());
+            } else {
+                field.set(entity, value);
+            }
+        }
+    }
+
+    private <T> T findReferencedEntity(Class<T> entityType, int id) {
+        Entity entityInfo = entityType.getAnnotation(Entity.class);
+        if (entityInfo == null) {
+            throw new IllegalArgumentException("Class " + entityType.getSimpleName() + " is not an entity class.");
+        }
+        String tableName = entityInfo.tableName();
+        String sql = "SELECT * FROM " + tableName + " WHERE id = " + id;
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                T entity = entityType.getDeclaredConstructor().newInstance();
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = rsmd.getColumnName(i);
+                    Field field = findFieldIgnoreCase(entityType, columnName);
+                    if (field != null) {
+                        field.setAccessible(true);
+                        Object value = rs.getObject(i);
+                        setField(field, entity, value);
+                    }
+                }
+                return entity;
+            }
+        } catch (SQLException | ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Field findFieldIgnoreCase(Class<?> clazz, String columnName) {
+        for (Field field : getAllFields(clazz)) {
+            if (field.getName().equalsIgnoreCase(columnName)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    private List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        while (type != null) {
+            fields.addAll(List.of(type.getDeclaredFields()));
+            type = type.getSuperclass();
+        }
+        return fields;
+    }
 
     // Executes a batch of SQL commands that do not return data
     public void executeBatch(List<String> sqlCommands) throws SQLException {

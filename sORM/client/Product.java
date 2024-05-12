@@ -12,12 +12,14 @@ public class Product {
 
     public Product() {
     } // MUST have a no-arg constructor
-    public Product(int id, String name, String description, double price) {
-        this.id = id;
+    public Product(String name, String description, double price) {
+        this.id = idCounter++;
         this.name = name;
         this.description = description;
         this.price = price;
     }
+
+    private static int idCounter = 1;
 
     @Column(primaryKey = true)
     private int id;

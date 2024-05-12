@@ -4,15 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="05b72105-d001-474e-803c-19a1b07bc254" name="Changes" comment="Initial commit.">
-      <change afterPath="$PROJECT_DIR$/sORM/client/PowerUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sORM/client/User.java" afterDir="false" />
+    <list default="true" id="05b72105-d001-474e-803c-19a1b07bc254" name="Changes" comment="Added database schema creating and basic CRUD.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM-project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/sORM-project.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/client/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sORM/client/Model.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/PowerUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/PowerUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/client/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/client/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/DatabaseAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/DatabaseAdapter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/DatabaseSchemaGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/DatabaseSchemaGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sORM/impl/EntityManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/EntityManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/EntityManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/EntityManagerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sORM/impl/SQLiteAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/sORM/impl/SQLiteAdapter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sorm.db" beforeDir="false" afterPath="$PROJECT_DIR$/sorm.db" afterDir="false" />
@@ -83,7 +83,7 @@
       <option name="presentableId" value="Default" />
       <updated>1715508668956</updated>
       <workItem from="1715508670065" duration="11184000" />
-      <workItem from="1715531043883" duration="459000" />
+      <workItem from="1715531043883" duration="5426000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit.">
       <created>1715514748302</created>
@@ -92,7 +92,14 @@
       <option name="project" value="LOCAL" />
       <updated>1715514748302</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added database schema creating and basic CRUD.">
+      <created>1715531829320</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1715531829320</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -112,6 +119,7 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Initial commit." />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit." />
+    <MESSAGE value="Added database schema creating and basic CRUD." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added database schema creating and basic CRUD." />
   </component>
 </project>
