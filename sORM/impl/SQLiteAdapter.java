@@ -150,6 +150,7 @@ public class SQLiteAdapter implements DatabaseAdapter {
         return fields;
     }
 
+    // used in generator
     public void executeBatch(List<String> sqlCommands) throws SQLException {
         try (Statement stmt = connection.createStatement()) {
             for (String sql : sqlCommands) {

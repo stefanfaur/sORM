@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         // setup the connection
         String connectionString = "jdbc:sqlite:sorm.db"; // local db file name
-        DatabaseAdapter adapter = new SQLiteAdapter();
+        DatabaseAdapter adapter = DatabaseAdapterFactory.getDatabaseAdapter("sqlite");
 
         // get actual connection
         adapter.connect(connectionString);
